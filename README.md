@@ -1,2 +1,2 @@
 # nsqfn
-Stream based utilities to make compositing and transforming nsq streams easier
+Stream based utilities to make composing and transforming nsq streams easier

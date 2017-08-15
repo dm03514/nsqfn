@@ -5,11 +5,6 @@ import (
 	"fmt"
 )
 
-type WindowMessages struct {
-	Messages   []*WindowMessage
-	GroupByKey string
-}
-
 type MemoryBuffer struct {
 	buffered    map[string][]*WindowMessage
 	messages    chan *WindowMessage
@@ -22,6 +17,7 @@ type MemoryBuffer struct {
 	numBufferedMessages int
 }
 
+// add timeout to flush all
 func (mb *MemoryBuffer) Loop() {
 	select {
 	case message := <-mb.messages:

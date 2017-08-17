@@ -6,27 +6,85 @@ import (
 )
 
 func TestHasBufferReachedCapacity(t *testing.T) {
+	key := &GroupByKey{}
 	mb := &MemoryBuffer{
-		buffered: map[string][]*WindowMessage{
-			"test": {&WindowMessage{}},
+		buffered: map[*GroupByKey][]IWindowMessage{
+			key: {&WindowMessage{}},
 		},
 		maxMessagesPerKey: 1,
 	}
-	assert.True(t, mb.HasBufferReachedCapacity("test"), "Buffer has reached capacity")
+	assert.True(t,
+		mb.HasBufferReachedCapacity(key),
+		"Buffer should have reached capacity",
+	)
 }
 
 func TestBufferHasNotReachedCapacity(t *testing.T) {
-	t.Fail()
+	key := &GroupByKey{}
+	mb := &MemoryBuffer{
+		buffered: map[*GroupByKey][]IWindowMessage{
+			key: {&WindowMessage{}},
+		},
+		maxMessagesPerKey: 2,
+	}
+	assert.False(t,
+		mb.HasBufferReachedCapacity(key),
+		"Buffer shouldn't have reached capacity",
+	)
 }
 
-func TestAllBuffersHaveNotReachedCapacity(t *testing.T) {
-	t.Fail()
+func TestBufferHaveAllBuffersReachedCapacity(t *testing.T) {
+	key := &GroupByKey{}
+
+	mb := &MemoryBuffer{
+		buffered: map[*GroupByKey][]IWindowMessage{
+			key: {&WindowMessage{}},
+		},
+		maxBufferedMessages: 2,
+	}
+	assert.False(t,
+		mb.HaveAllBuffersReachedCapacity(),
+		"Buffers shouldn't have reached capacity",
+	)
 }
 
-func TestAllBuffersHaveReachedCapacity(t *testing.T) {
-	t.Fail()
+type StubWindowMessage struct {
+	keyTemplate *GroupByKey
+	key         *GroupByKey
 }
 
-func TestFlushBufferWritesPersistence(t *testing.T) {
-	t.Fail()
+func (swm *StubWindowMessage) GroupByKey(keyTemplate *GroupByKey) *GroupByKey {
+	swm.keyTemplate = keyTemplate
+	return swm.key
+}
+
+func TestBufferPushNoBuffersFilled(t *testing.T) {
+	stubKey := &GroupByKey{
+		"stub": nil,
+	}
+	keyTemplate := &GroupByKey{}
+	swm := &StubWindowMessage{
+		keyTemplate: keyTemplate,
+		key:         stubKey,
+	}
+	mb := &MemoryBuffer{
+		maxBufferedMessages: 2,
+		maxMessagesPerKey:   2,
+		keyTemplate:         keyTemplate,
+	}
+	mb.Init()
+	mb.Push(swm)
+
+	assert.Equal(t,
+		len(mb.buffered),
+		1,
+		"should have a single buffered key",
+	)
+
+	assert.Equal(t,
+		len(mb.buffered[stubKey]),
+		1,
+		"should have a single buffered message",
+	)
+
 }

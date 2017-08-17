@@ -6,7 +6,7 @@ import (
 )
 
 type NSQFinner struct {
-	fin chan *windower.WindowMessages
+	fin chan *windower.WindowMessage
 
 	ctx context.Context
 }

@@ -6,15 +6,20 @@ import (
 )
 
 type MemoryBuffer struct {
-	buffered    map[string][]*WindowMessage
+	buffered    map[*GroupByKey][]IWindowMessage
 	messages    chan *WindowMessage
 	persistence chan *WindowMessages
+	keyTemplate *GroupByKey
 
 	ctx context.Context
 
 	maxMessagesPerKey   int
 	maxBufferedMessages int
 	numBufferedMessages int
+}
+
+func (mb *MemoryBuffer) Init() {
+	mb.buffered = make(map[*GroupByKey][]IWindowMessage)
 }
 
 // add timeout to flush all
@@ -34,7 +39,7 @@ func (mb *MemoryBuffer) FlushAll() {
 	}
 }
 
-func (mb *MemoryBuffer) FlushBuffer(key string) {
+func (mb *MemoryBuffer) FlushBuffer(key *GroupByKey) {
 	windowMessages := &WindowMessages{
 		Messages:   mb.buffered[key],
 		GroupByKey: key,
@@ -49,13 +54,13 @@ func (mb *MemoryBuffer) HaveAllBuffersReachedCapacity() bool {
 	return mb.numBufferedMessages >= mb.maxBufferedMessages
 }
 
-func (mb *MemoryBuffer) HasBufferReachedCapacity(key string) bool {
+func (mb *MemoryBuffer) HasBufferReachedCapacity(key *GroupByKey) bool {
 	return len(mb.buffered[key]) >= mb.maxMessagesPerKey
 }
 
-func (mb *MemoryBuffer) Push(m *WindowMessage) {
-	key := m.GroupByKey()
-	mb.buffered[key] = append(mb.buffered[key], m)
+func (mb *MemoryBuffer) Push(wm IWindowMessage) {
+	key := wm.GroupByKey(mb.keyTemplate)
+	mb.buffered[key] = append(mb.buffered[key], wm)
 
 	mb.numBufferedMessages++
 	if mb.HaveAllBuffersReachedCapacity() {

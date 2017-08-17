@@ -8,11 +8,13 @@ import (
 )
 
 type FileSystem struct {
-	baseDir     string
+	backendRoot     BackendRoot
+	pathTemplate PathTemplate
 	persistence chan *windower.WindowMessages
-	fin         chan *windower.WindowMessages
+	fin         chan *windower.WindowMessage
 
 	ctx context.Context
+
 }
 
 // For right now we only open files when its time to flush and
@@ -22,12 +24,12 @@ type FileSystem struct {
 // crash recovery
 
 // closing files when they are complete
-func (fs *FileSystem) Write(wms *windower.WindowMessages) int {
+func (fs *FileSystem) Write(wms *windower.WindowMessages) {
 	var f *os.File
 
 	// if file does not exist, initialize it
-	if _, err := os.Stat(fs.Path(wms)); os.IsNotExist(err) {
-		f = fs.file(fs.Path(wms))
+	if _, err := os.Stat(fs.FullPath(wms)); os.IsNotExist(err) {
+		f = fs.file(fs.FullPath(wms))
 	}
 	defer f.Close()
 
@@ -43,6 +45,10 @@ func (fs *FileSystem) file(path string) *os.File {
 	return f
 }
 
-func (fs *FileSystem) Path(wms *windower.WindowMessages) string {
-	return filepath.Join(fs.baseDir, wms.Path())
+func (fs *FileSystem) FullPath(wms *windower.WindowMessages) string {
+	return filepath.Join(
+		fs.backendRoot.BaseDir(),
+		fs.pathTemplate.Path(wms.GroupByKey),
+		wms.FileName(),
+	)
 }

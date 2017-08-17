@@ -11,6 +11,8 @@ type WindowHandler struct {
 	// flush interval
 	// backend
 	messages chan *WindowMessage
+	// backendRoot BackendRoot
+	// pathTemplate PathTemplate
 }
 
 func (wh *WindowHandler) HandleMessage(m *nsq.Message) error {
@@ -20,7 +22,7 @@ func (wh *WindowHandler) HandleMessage(m *nsq.Message) error {
 	wm := NewWindowMessage(m)
 
 	// validate that the message has the expected keys or fail here
-	wm.GroupByKey()
+	// VALIDATE THE WINDOW MESSAGE BEFORE GOING ON
 	wh.messages <- wm
 
 	fmt.Println(wm)

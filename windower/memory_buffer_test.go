@@ -86,5 +86,33 @@ func TestBufferPushNoBuffersFilled(t *testing.T) {
 		1,
 		"should have a single buffered message",
 	)
+}
+
+func TestMemoryBuffer_FlushBufferDeletesKey(t *testing.T) {
+	stubKey := &GroupByKey{
+		"stub": nil,
+	}
+
+	persistence := make(chan *WindowMessages)
+	wm := &WindowMessage{}
+
+	mb := &MemoryBuffer{
+		maxBufferedMessages: 2,
+		maxMessagesPerKey:   2,
+		persistence:         persistence,
+		buffered: map[*GroupByKey][]IWindowMessage{
+			stubKey: {wm},
+		},
+	}
+
+	go mb.FlushBuffer(stubKey)
+
+	<-persistence
+
+	assert.Equal(t,
+		len(mb.buffered),
+		0,
+		"should have no buffered keys",
+	)
 
 }

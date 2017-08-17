@@ -36,6 +36,9 @@ func (wm *WindowMessages) FileName() string {
 }
 
 // serializes the window messages and returns byte array
+// we need to not copy this to memory.   Each of the underlying
+// nsq message Body should already be a byte array, so we just
+// need to stream them out and join them somehow
 func (wm *WindowMessages) Bytes() []byte {
 	return []byte{}
 }

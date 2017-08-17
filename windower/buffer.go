@@ -45,7 +45,6 @@ func (mb *MemoryBuffer) FlushBuffer(key *GroupByKey) {
 		GroupByKey: key,
 	}
 	mb.persistence <- windowMessages
-	// will this reinitialize ????? and allow us to append to the slice?
 	mb.buffered[key] = nil
 	delete(mb.buffered, key)
 }

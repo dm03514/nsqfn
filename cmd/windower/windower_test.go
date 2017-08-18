@@ -4,7 +4,6 @@ import (
 	"testing"
 	"github.com/nsqio/go-nsq"
 	"github.com/dm03514/nsqfn/backends"
-	"runtime"
 )
 
 // Test the full integration of the whole windower life cycle starting at the

@@ -25,6 +25,20 @@ func (wm *WindowMessage) Body() []byte {
 	return wm.Message.Body
 }
 
+// should this always pass a copy of the keyTemplate
+// fill the values based on the current window message
+// and return a pointer to that????
+func (wm *WindowMessage) GroupByKey(keyTemplate *GroupByKey) *GroupByKey {
+	/*
+	for k, v := range keyTemplate {
+		fmt.Println(k)
+		fmt.Println(v)
+	}
+	return &keyTemplate
+	*/
+	return &GroupByKey{}
+}
+
 // JSON window messages, need an interface
 // WindowMessage need an interface JSONWindowMessage
 type WindowMessages struct {
@@ -56,8 +70,4 @@ func (wm *WindowMessages) Bytes() []byte {
 // gets the keys routing key
 func NewWindowMessage(m *nsq.Message) *WindowMessage {
 	return &WindowMessage{Message: m}
-}
-
-func (wm *WindowMessage) GroupByKey(keyTemplate *GroupByKey) *GroupByKey {
-	return &GroupByKey{}
 }

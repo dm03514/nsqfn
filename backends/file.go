@@ -12,7 +12,7 @@ type FileSystem struct {
 	BackendRoot     BackendRoot
 	PathTemplate PathTemplate
 	Persistence chan *windower.WindowMessages
-	Fin         chan *windower.WindowMessage
+	Fin         chan windower.IWindowMessage
 
 	ctx context.Context
 
@@ -65,4 +65,5 @@ func (fs *FileSystem) FullPath(wms *windower.WindowMessages) string {
 		wms.FileName(),
 	)
 	fmt.Println(fullPath)
+	return fullPath
 }

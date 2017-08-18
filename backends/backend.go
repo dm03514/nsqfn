@@ -7,15 +7,19 @@ type Backend interface {
 }
 
 
-type BackendRoot string
+type BackendRoot struct {
+	RootDir string
+}
 
 func (br *BackendRoot) BaseDir() string {
-	return ""
+	return br.RootDir
 }
 
 
-type PathTemplate string
+type PathTemplate struct {
+	Template string
+}
 
 func (pt *PathTemplate) Path(groupBy windower.GroupByKey) string {
-	// interpolate template with the
+	// interpolate template with the group by key
 }

@@ -5,13 +5,14 @@ import (
 	"github.com/dm03514/nsqfn/windower"
 	"os"
 	"path/filepath"
+	"fmt"
 )
 
 type FileSystem struct {
-	backendRoot     BackendRoot
-	pathTemplate PathTemplate
-	persistence chan *windower.WindowMessages
-	fin         chan *windower.WindowMessage
+	BackendRoot     BackendRoot
+	PathTemplate PathTemplate
+	Persistence chan *windower.WindowMessages
+	Fin         chan *windower.WindowMessage
 
 	ctx context.Context
 
@@ -21,20 +22,32 @@ type FileSystem struct {
 // then write to it and close it, so we don't need to keep track of all open
 // files and their sizes
 
-// crash recovery
+
+func (fs *FileSystem) Loop() {
+	select {
+	case windowMessages := <-fs.Persistence:
+		fmt.Println(windowMessages)
+		fs.Write(windowMessages)
+	case <-fs.ctx.Done():
+		fmt.Println("done")
+	}
+}
+
 
 // closing files when they are complete
 func (fs *FileSystem) Write(wms *windower.WindowMessages) {
 	var f *os.File
 
 	// if file does not exist, initialize it
-	if _, err := os.Stat(fs.FullPath(wms)); os.IsNotExist(err) {
-		f = fs.file(fs.FullPath(wms))
-	}
+	f = fs.file(fs.FullPath(wms))
 	defer f.Close()
 
 	// write the messages to it
 	f.Write(wms.Bytes())
+
+	for _, m := range wms.Messages {
+		fs.Fin <- m
+	}
 }
 
 func (fs *FileSystem) file(path string) *os.File {
@@ -46,9 +59,10 @@ func (fs *FileSystem) file(path string) *os.File {
 }
 
 func (fs *FileSystem) FullPath(wms *windower.WindowMessages) string {
-	return filepath.Join(
-		fs.backendRoot.BaseDir(),
-		fs.pathTemplate.Path(wms.GroupByKey),
+	fullPath := filepath.Join(
+		fs.BackendRoot.BaseDir(),
+		fs.PathTemplate.Path(wms.GroupByKey),
 		wms.FileName(),
 	)
+	fmt.Println(fullPath)
 }

@@ -57,6 +57,9 @@ func (swm *StubWindowMessage) GroupByKey(keyTemplate *GroupByKey) *GroupByKey {
 	swm.keyTemplate = keyTemplate
 	return swm.key
 }
+func (swm *StubWindowMessage) Body() []byte {
+	return []byte("heello")
+}
 
 func TestBufferPushNoBuffersFilled(t *testing.T) {
 	stubKey := &GroupByKey{

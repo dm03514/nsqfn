@@ -22,6 +22,7 @@ func (mb *MemoryBuffer) Init() {
 	mb.buffered = make(map[*GroupByKey][]IWindowMessage)
 }
 
+
 // add timeout to flush all
 func (mb *MemoryBuffer) Loop() {
 	select {

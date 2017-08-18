@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"github.com/nsqio/go-nsq"
 	"github.com/satori/go.uuid"
+	"bytes"
 )
 
 type IWindowMessage interface {
+	Body() []byte
 	// crazy
 	// CHANGE TO Key() we are getting the message key, or BufferKey() or something
 	GroupByKey(keyTemplate *GroupByKey) *GroupByKey
@@ -17,6 +19,10 @@ type GroupByKey map[string]interface{}
 
 type WindowMessage struct {
 	*nsq.Message
+}
+
+func (wm *WindowMessage) Body() []byte {
+	return wm.Message.Body
 }
 
 // JSON window messages, need an interface
@@ -37,10 +43,14 @@ func (wm *WindowMessages) FileName() string {
 
 // serializes the window messages and returns byte array
 // we need to not copy this to memory.   Each of the underlying
-// nsq message Body should already be a byte array, so we just
+// nsq message Body should already be a byte slice, so we just
 // need to stream them out and join them somehow
 func (wm *WindowMessages) Bytes() []byte {
-	return []byte{}
+	bs := [][]byte{}
+	for _, m := range wm.Messages {
+		bs = append(bs, m.Body())
+	}
+	return bytes.Join(bs, []byte("\n"))
 }
 
 // gets the keys routing key

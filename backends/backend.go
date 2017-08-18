@@ -1,15 +1,14 @@
 package backends
 
 import (
+	"bytes"
 	"github.com/dm03514/nsqfn/windower"
 	"text/template"
-	"bytes"
 )
 
 type Backend interface {
 	Write(*windower.WindowMessages) int
 }
-
 
 type BackendRoot struct {
 	RootDir string
@@ -18,7 +17,6 @@ type BackendRoot struct {
 func (br *BackendRoot) BaseDir() string {
 	return br.RootDir
 }
-
 
 type PathTemplate struct {
 	Template string

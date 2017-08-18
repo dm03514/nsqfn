@@ -1,17 +1,18 @@
 package windower
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/nsqio/go-nsq"
 	"github.com/satori/go.uuid"
-	"bytes"
 )
 
 type IWindowMessage interface {
 	Body() []byte
 	// crazy
 	// CHANGE TO Key() we are getting the message key, or BufferKey() or something
-	GroupByKey(keyTemplate *GroupByKey) *GroupByKey
+	GroupByKey(keyTemplate GroupByKey) *GroupByKey
 }
 
 // map of keys to group on
@@ -25,18 +26,32 @@ func (wm *WindowMessage) Body() []byte {
 	return wm.Message.Body
 }
 
-// should this always pass a copy of the keyTemplate
-// fill the values based on the current window message
-// and return a pointer to that????
-func (wm *WindowMessage) GroupByKey(keyTemplate *GroupByKey) *GroupByKey {
-	/*
+// TODO do maps automatically pass by reference??
+// Can't copy this here, some payloads are huge
+func (wm *WindowMessage) JSON() map[string]interface{} {
+	var data map[string]interface{}
+
+	if err := json.Unmarshal(wm.Body(), &data); err != nil {
+		panic(err)
+	}
+	fmt.Println(data)
+	return data
+}
+
+// Given a template, will populate that template with
+// the WindowMessages values and return a pointer to the template
+// TODO Need to have additional checks, and return an error, if the
+// message doesn't completely fulfill the template it is invalid
+func (wm *WindowMessage) GroupByKey(keyTemplate GroupByKey) *GroupByKey {
+	j := wm.JSON()
+
 	for k, v := range keyTemplate {
+		// TODO what effects does this type conversion have? utf-8? what about float?
+		keyTemplate[k] = j[k].(string)
 		fmt.Println(k)
 		fmt.Println(v)
 	}
 	return &keyTemplate
-	*/
-	return &GroupByKey{}
 }
 
 // JSON window messages, need an interface

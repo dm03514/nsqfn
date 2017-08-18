@@ -53,8 +53,8 @@ type StubWindowMessage struct {
 	key         *GroupByKey
 }
 
-func (swm *StubWindowMessage) GroupByKey(keyTemplate *GroupByKey) *GroupByKey {
-	swm.keyTemplate = keyTemplate
+func (swm *StubWindowMessage) GroupByKey(keyTemplate GroupByKey) *GroupByKey {
+	swm.keyTemplate = &keyTemplate
 	return swm.key
 }
 func (swm *StubWindowMessage) Body() []byte {

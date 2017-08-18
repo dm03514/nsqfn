@@ -2,26 +2,24 @@ package backends
 
 import (
 	"context"
+	"fmt"
 	"github.com/dm03514/nsqfn/windower"
 	"os"
 	"path/filepath"
-	"fmt"
 )
 
 type FileSystem struct {
-	BackendRoot     BackendRoot
+	BackendRoot  BackendRoot
 	PathTemplate PathTemplate
-	Persistence chan *windower.WindowMessages
-	Fin         chan windower.IWindowMessage
+	Persistence  chan *windower.WindowMessages
+	Fin          chan windower.IWindowMessage
 
 	ctx context.Context
-
 }
 
 // For right now we only open files when its time to flush and
 // then write to it and close it, so we don't need to keep track of all open
 // files and their sizes
-
 
 func (fs *FileSystem) Loop() {
 	select {
@@ -32,7 +30,6 @@ func (fs *FileSystem) Loop() {
 		fmt.Println("done")
 	}
 }
-
 
 // closing files when they are complete
 func (fs *FileSystem) Write(wms *windower.WindowMessages) {

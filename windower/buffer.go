@@ -22,7 +22,6 @@ func (mb *MemoryBuffer) Init() {
 	mb.buffered = make(map[*GroupByKey][]IWindowMessage)
 }
 
-
 // add timeout to flush all
 func (mb *MemoryBuffer) Loop() {
 	select {
@@ -59,7 +58,7 @@ func (mb *MemoryBuffer) HasBufferReachedCapacity(key *GroupByKey) bool {
 }
 
 func (mb *MemoryBuffer) Push(wm IWindowMessage) {
-	key := wm.GroupByKey(mb.keyTemplate)
+	key := wm.GroupByKey(*mb.keyTemplate)
 	mb.buffered[key] = append(mb.buffered[key], wm)
 
 	mb.numBufferedMessages++

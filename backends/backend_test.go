@@ -1,9 +1,9 @@
 package backends
 
 import (
-	"testing"
 	"github.com/dm03514/nsqfn/windower"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestPathInterpolateValidParams(t *testing.T) {
@@ -12,7 +12,7 @@ func TestPathInterpolateValidParams(t *testing.T) {
 	}
 	k := &windower.GroupByKey{
 		"user_id": 1,
-		"name": "test",
+		"name":    "test",
 	}
 	assert.Equal(t,
 		pt.Path(k),
